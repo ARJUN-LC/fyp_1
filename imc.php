@@ -7,49 +7,90 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f9f5e3;
+            background: linear-gradient(135deg, #FFE259, #FFA751);
             color: #333;
             padding: 20px;
             font-family: 'Poppins', sans-serif;
         }
+        h1, h2, h3 {
+            color: #d35400;
+        }
         .btn-custom {
             background-color: #e67e22;
             color: white;
-            border-radius: 8px;
-            padding: 10px;
+            border-radius: 50px;
+            padding: 10px 20px;
             font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
         .btn-custom:hover {
             background-color: #d35400;
-        }
-        .table thead {
-            background-color: #f39c12;
-            color: white;
+            transform: translateY(-2px);
         }
         .container-box {
             max-width: 600px;
-            margin: auto;
+            margin: 30px auto;
             background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .container-box:hover {
+            transform: scale(1.02);
+        }
+        .container-box h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #d35400;
+            font-weight: bold;
+        }
+        .form-control {
+            border-radius: 10px;
+        }
+        input[type="submit"] {
+            border: none;
+        }
+        .shadow-card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
         }
-        h2 {
-            color: #d35400;
-            text-align: center;
-            margin-bottom: 20px;
+        .shadow-card h2 {
+            color: #e67e22;
+        }
+        @media (max-width: 768px) {
+            .container-box {
+                max-width: 90%;
+                padding: 20px;
+            }
+            .btn-custom {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            .container-box {
+                padding: 15px;
+                max-width: 100%;
+            }
+            .btn-custom {
+                font-size: 14px;
+                padding: 7px 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container text-center">
-        <h1>Student Data Management</h1>
+        <h1>Internal Mark Calculator</h1>
         <a href="marks.php" class="btn btn-custom">Go to Marks Management</a>
     </div>
     
     <div class="container text-center mt-4">
-
-        <a href="db.php" class="btn btn-custom">Back to Student Management</a>
+        <a href="staff.php" class="btn btn-custom">Back to Student Management</a>
     </div>
 
     <div class="container-box mt-4">
@@ -112,7 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['calculate_marks'])) {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $internal_marks = calculate_internal_marks([$row['assg1'], $row['assg2'], $row['assg3']], [$row['cia1'], $row['cia2']], $row['model']);
-        echo "<div class='container text-center mt-4'><h2>Student: $student_name</h2><h3>Subject: $sub</h3><h2>Internal Marks: $internal_marks</h2></div>";
+        echo "<div class='container text-center mt-4 shadow-card'><h2>Student: $student_name</h2><h3>Subject: $sub</h3><h2>Internal Marks: $internal_marks</h2></div>";
     } else {
         echo "<div class='container text-center mt-4'><h2 class='text-danger'>No data found.</h2></div>";
     }

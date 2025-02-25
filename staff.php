@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN</title>
+    <title>STAFF</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -81,7 +81,32 @@
     </style>
 </head>
 <body>
-    <!-- Combined Data Form -->
+    <div class="container text-center">
+        <h1>Student Data Management</h1>
+        <a href="marks.php" class="btn btn-custom">Go to Marks Management</a>
+    </div>
+
+    <!-- Insert Student Data Form -->
+    <div class="container-box mt-4">
+        <form method="post" action="">
+            <h2>Insert Student Data</h2>
+            <div class="mb-3">
+                <label class="form-label">Roll Number:</label>
+                <input type="text" name="roll_num" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Name:</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Department:</label>
+                <input type="text" name="dept" class="form-control" required>
+            </div>
+            <input type="submit" name="insert" value="Insert Data" class="btn btn-custom w-100">
+        </form>
+    </div>
+
+    <!-- Show Combined Data Form -->
     <div class="container-box mt-4">
         <form method="post" action="">
             <h2>Show Combined Data</h2>
@@ -89,7 +114,7 @@
         </form>
     </div>
 
-    <!-- Data by Roll Number and Semester Form -->
+    <!-- Show Data by Roll Number and Semester Form -->
     <div class="container-box mt-4">
         <form method="post" action="">
             <h2>Show Data by Roll Number and Semester</h2>
@@ -119,12 +144,27 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Show Combined Data
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['insert'])) {
+    $roll_num = $_POST['roll_num'];
+    $name = $_POST['name'];
+    $dept = $_POST['dept'];
+    
+    $sql = "INSERT INTO st_data (roll_num, name, dept) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sss", $roll_num, $name, $dept);
+
+    if ($stmt->execute()) {
+        echo "<div class='alert alert-success text-center'>Record inserted successfully</div>";
+    } else {
+        echo "<div class='alert alert-danger text-center'>Error: " . $stmt->error . "</div>";
+    }
+    $stmt->close();
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['show_combined_data'])) {
     show_combined_data($conn);
 }
 
-// Show Data by Roll Number and Semester
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['show_by_roll_sem'])) {
     $roll_num = $_POST['roll_num'];
     $sem = $_POST['sem'];
@@ -137,39 +177,9 @@ function show_combined_data($conn) {
             LEFT JOIN marks ON st_data.roll_num = marks.st_id";
     $result = $conn->query($sql);
     
-    echo "<div class='container mt-4'>
-            <h2 class='text-center'>Combined Data</h2>
-            <table class='table table-striped table-bordered'>
-                <thead>
-                    <tr>
-                        <th>Roll Number</th>
-                        <th>Name</th>
-                        <th>Department</th>
-                        <th>Semester</th>
-                        <th>Subject</th>
-                        <th>Assignment 1</th>
-                        <th>Assignment 2</th>
-                        <th>Assignment 3</th>
-                        <th>CIA 1</th>
-                        <th>CIA 2</th>
-                        <th>Model</th>
-                    </tr>
-                </thead>
-                <tbody>";
+    echo "<div class='container mt-4'><h2 class='text-center'>Combined Data</h2><table class='table table-striped table-bordered'><thead><tr><th>Roll Number</th><th>Name</th><th>Department</th><th>Semester</th><th>Subject</th><th>Assignment 1</th><th>Assignment 2</th><th>Assignment 3</th><th>CIA 1</th><th>CIA 2</th><th>Model</th></tr></thead><tbody>";
     while ($row = $result->fetch_assoc()) {
-        echo "<tr>
-                <td>{$row['roll_num']}</td>
-                <td>{$row['name']}</td>
-                <td>{$row['dept']}</td>
-                <td>{$row['sem']}</td>
-                <td>{$row['sub']}</td>
-                <td>{$row['assg1']}</td>
-                <td>{$row['assg2']}</td>
-                <td>{$row['assg3']}</td>
-                <td>{$row['cia1']}</td>
-                <td>{$row['cia2']}</td>
-                <td>{$row['model']}</td>
-              </tr>";
+        echo "<tr><td>{$row['roll_num']}</td><td>{$row['name']}</td><td>{$row['dept']}</td><td>{$row['sem']}</td><td>{$row['sub']}</td><td>{$row['assg1']}</td><td>{$row['assg2']}</td><td>{$row['assg3']}</td><td>{$row['cia1']}</td><td>{$row['cia2']}</td><td>{$row['model']}</td></tr>";
     }
     echo "</tbody></table></div>";
 }
@@ -181,31 +191,9 @@ function show_by_roll_sem($conn, $roll_num, $sem) {
     $stmt->execute();
     $result = $stmt->get_result();
     
-    echo "<div class='container mt-4'>
-            <h2 class='text-center'>Student Marks</h2>
-            <table class='table table-striped table-bordered'>
-                <thead>
-                    <tr>
-                        <th>Subject</th>
-                        <th>Assignment 1</th>
-                        <th>Assignment 2</th>
-                        <th>Assignment 3</th>
-                        <th>CIA 1</th>
-                        <th>CIA 2</th>
-                        <th>Model</th>
-                    </tr>
-                </thead>
-                <tbody>";
+    echo "<div class='container mt-4'><h2 class='text-center'>Student Marks</h2><table class='table table-striped table-bordered'><thead><tr><th>Subject</th><th>Assignment 1</th><th>Assignment 2</th><th>Assignment 3</th><th>CIA 1</th><th>CIA 2</th><th>Model</th></tr></thead><tbody>";
     while ($row = $result->fetch_assoc()) {
-        echo "<tr>
-                <td>{$row['sub']}</td>
-                <td>{$row['assg1']}</td>
-                <td>{$row['assg2']}</td>
-                <td>{$row['assg3']}</td>
-                <td>{$row['cia1']}</td>
-                <td>{$row['cia2']}</td>
-                <td>{$row['model']}</td>
-              </tr>";
+        echo "<tr><td>{$row['sub']}</td><td>{$row['assg1']}</td><td>{$row['assg2']}</td><td>{$row['assg3']}</td><td>{$row['cia1']}</td><td>{$row['cia2']}</td><td>{$row['model']}</td></tr>";
     }
     echo "</tbody></table></div>";
 }
