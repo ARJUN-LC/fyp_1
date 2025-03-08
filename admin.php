@@ -50,49 +50,22 @@
         .form-control {
             border-radius: 10px;
         }
-
-        /* Media Queries for Responsive Design */
-        @media (max-width: 768px) {
-            .container-box {
-                padding: 20px;
-                max-width: 90%;
-            }
-            h2 {
-                font-size: 24px;
-            }
-            .btn-custom {
-                font-size: 16px;
-                padding: 8px 15px;
-            }
-        }
-        @media (max-width: 480px) {
-            .container-box {
-                padding: 15px;
-                max-width: 100%;
-            }
-            h2 {
-                font-size: 22px;
-            }
-            .btn-custom {
-                font-size: 14px;
-                padding: 7px 10px;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Combined Data Form -->
+
+    <!-- Show Combined Data -->
     <div class="container-box mt-4">
         <form method="post" action="">
             <h2>Show Combined Data</h2>
-            <input type="submit" name="show_combined_data" value="Show Combined Data" class="btn btn-custom w-100">
+            <input type="submit" name="show_combined_data" value="Show All Data" class="btn btn-custom w-100">
         </form>
     </div>
 
-    <!-- Data by Roll Number and Semester Form -->
+    <!-- Show Data by Roll Number and Semester -->
     <div class="container-box mt-4">
         <form method="post" action="">
-            <h2>Show Data by Roll Number and Semester</h2>
+            <h2>Show Data by Roll Number & Semester</h2>
             <div class="mb-3">
                 <label class="form-label">Roll Number:</label>
                 <input type="text" name="roll_num" class="form-control" required>
@@ -104,6 +77,19 @@
             <input type="submit" name="show_by_roll_sem" value="Show Data" class="btn btn-custom w-100">
         </form>
     </div>
+
+    <!-- Show Data by Department -->
+    <div class="container-box mt-4">
+        <form method="post" action="">
+            <h2>Show Data by Department</h2>
+            <div class="mb-3">
+                <label class="form-label">Department:</label>
+                <input type="text" name="dept" class="form-control" required>
+            </div>
+            <input type="submit" name="show_by_dept" value="Show Results" class="btn btn-custom w-100">
+        </form>
+    </div>
+
 </body>
 </html>
 
@@ -131,83 +117,91 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['show_by_roll_sem'])) {
     show_by_roll_sem($conn, $roll_num, $sem);
 }
 
+// Show Data by Department
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['show_by_dept'])) {
+    $dept = $_POST['dept'];
+    show_by_dept($conn, $dept);
+}
+
 function show_combined_data($conn) {
     $sql = "SELECT st_data.roll_num, st_data.name, st_data.dept, marks.sem, marks.sub, marks.assg1, marks.assg2, marks.assg3, marks.cia1, marks.cia2, marks.model 
             FROM st_data 
             LEFT JOIN marks ON st_data.roll_num = marks.st_id";
     $result = $conn->query($sql);
     
-    echo "<div class='container mt-4'>
-            <h2 class='text-center'>Combined Data</h2>
-            <table class='table table-striped table-bordered'>
-                <thead>
-                    <tr>
-                        <th>Roll Number</th>
-                        <th>Name</th>
-                        <th>Department</th>
-                        <th>Semester</th>
-                        <th>Subject</th>
-                        <th>Assignment 1</th>
-                        <th>Assignment 2</th>
-                        <th>Assignment 3</th>
-                        <th>CIA 1</th>
-                        <th>CIA 2</th>
-                        <th>Model</th>
-                    </tr>
-                </thead>
-                <tbody>";
-    while ($row = $result->fetch_assoc()) {
-        echo "<tr>
-                <td>{$row['roll_num']}</td>
-                <td>{$row['name']}</td>
-                <td>{$row['dept']}</td>
-                <td>{$row['sem']}</td>
-                <td>{$row['sub']}</td>
-                <td>{$row['assg1']}</td>
-                <td>{$row['assg2']}</td>
-                <td>{$row['assg3']}</td>
-                <td>{$row['cia1']}</td>
-                <td>{$row['cia2']}</td>
-                <td>{$row['model']}</td>
-              </tr>";
-    }
-    echo "</tbody></table></div>";
+    display_table($result, "All Students' Data");
 }
 
 function show_by_roll_sem($conn, $roll_num, $sem) {
-    $sql = "SELECT * FROM marks WHERE st_id = ? AND sem = ?";
+    $sql = "SELECT st_data.roll_num, st_data.name, marks.sem, marks.sub, 
+                   marks.assg1, marks.assg2, marks.assg3, marks.cia1, marks.cia2, marks.model
+            FROM marks 
+            JOIN st_data ON marks.st_id = st_data.roll_num
+            WHERE marks.st_id = ? AND marks.sem = ?";
+
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("si", $roll_num, $sem);
     $stmt->execute();
     $result = $stmt->get_result();
     
-    echo "<div class='container mt-4'>
-            <h2 class='text-center'>Student Marks</h2>
-            <table class='table table-striped table-bordered'>
-                <thead>
-                    <tr>
-                        <th>Subject</th>
-                        <th>Assignment 1</th>
-                        <th>Assignment 2</th>
-                        <th>Assignment 3</th>
-                        <th>CIA 1</th>
-                        <th>CIA 2</th>
-                        <th>Model</th>
-                    </tr>
-                </thead>
-                <tbody>";
-    while ($row = $result->fetch_assoc()) {
-        echo "<tr>
-                <td>{$row['sub']}</td>
-                <td>{$row['assg1']}</td>
-                <td>{$row['assg2']}</td>
-                <td>{$row['assg3']}</td>
-                <td>{$row['cia1']}</td>
-                <td>{$row['cia2']}</td>
-                <td>{$row['model']}</td>
-              </tr>";
+    display_table($result, "Results for Roll Number: $roll_num, Semester: $sem");
+}
+
+function show_by_dept($conn, $dept) {
+    $sql = "SELECT st_data.roll_num, st_data.name, st_data.dept, marks.sem, marks.sub, 
+                   marks.assg1, marks.assg2, marks.assg3, marks.cia1, marks.cia2, marks.model
+            FROM st_data
+            LEFT JOIN marks ON st_data.roll_num = marks.st_id
+            WHERE st_data.dept = ?";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $dept);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    display_table($result, "Results for Department: $dept");
+}
+
+function display_table($result, $title) {
+    if ($result->num_rows > 0) {
+        echo "<div class='container mt-4'>
+                <h2 class='text-center'>$title</h2>
+                <table class='table table-striped table-bordered'>
+                    <thead>
+                        <tr>
+                            <th>Roll Number</th>
+                            <th>Name</th>
+                            <th>Semester</th>
+                            <th>Subject</th>
+                            <th>Assignment 1</th>
+                            <th>Assignment 2</th>
+                            <th>Assignment 3</th>
+                            <th>CIA 1</th>
+                            <th>CIA 2</th>
+                            <th>Model</th>
+                        </tr>
+                    </thead>
+                    <tbody>";
+        
+        while ($row = $result->fetch_assoc()) {
+            echo "<tr>
+                    <td>{$row['roll_num']}</td>
+                    <td>{$row['name']}</td>
+                    <td>{$row['sem']}</td>
+                    <td>{$row['sub']}</td>
+                    <td>{$row['assg1']}</td>
+                    <td>{$row['assg2']}</td>
+                    <td>{$row['assg3']}</td>
+                    <td>{$row['cia1']}</td>
+                    <td>{$row['cia2']}</td>
+                    <td>{$row['model']}</td>
+                  </tr>";
+        }
+        
+        echo "</tbody></table></div>";
+    } else {
+        echo "<h2 class='text-center text-danger'>$title - No records found</h2>";
     }
-    echo "</tbody></table></div>";
 }
 
 $conn->close();
