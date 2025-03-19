@@ -7,13 +7,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #FFE259, #FFA751);
+            background:  rgba(172, 255, 47, 0.625);
             color: #333;
             padding: 20px;
             font-family: 'Poppins', sans-serif;
         }
         .btn-custom {
-            background-color: #e67e22;
+            background-color: darkgreen;
             color: white;
             border-radius: 50px;
             padding: 10px 20px;
@@ -22,11 +22,11 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
         .btn-custom:hover {
-            background-color: #d35400;
+            background-color: rgba(172, 255, 47, 0.625);
             transform: translateY(-2px);
         }
         .table thead {
-            background-color: #f39c12;
+            background-color:darkgreen;
             color: white;
         }
         .container-box {
@@ -42,7 +42,7 @@
             transform: scale(1.02);
         }
         h2 {
-            color: #d35400;
+            color: darkgreen;
             text-align: center;
             margin-bottom: 20px;
             font-weight: bold;
